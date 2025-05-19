@@ -1,4 +1,4 @@
-from alchemist.postgresql.resource import save_memory
+# from alchemist.postgresql.resource import save_memory
 from config.config import DUMMY_USER_ID
 from vectorstore.faiss_service import store_text
 from alchemist.postgresql.initializer import SourceType

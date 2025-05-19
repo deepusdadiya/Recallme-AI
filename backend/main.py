@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from services.memory_pipeline import router as memory_router
+from services.memory_pipeline.router import router as memory_router
 
 app = FastAPI()
 
