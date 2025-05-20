@@ -7,7 +7,6 @@ from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from vectorstore.wrapper import SentenceTransformerEmbeddings
 
-# Sentence-transformers model
 embedding_model = SentenceTransformerEmbeddings()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 
