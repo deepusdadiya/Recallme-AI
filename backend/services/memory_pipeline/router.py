@@ -9,4 +9,4 @@ router = APIRouter()
 @router.post("/upload-memory")
 def upload_memory(req: MemoryUploadRequest, db: Session = Depends(get_db)):
     result = process_memory(db, req.title, req.source_type, req.content)
-    return {"status": "success", "id": str(result.id)}   # Assuming result.id is the ID of the memory
+    return {"status": "success", "id": str(result.id)}

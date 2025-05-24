@@ -9,7 +9,6 @@ import pytesseract
 import whisper
 import fitz
 
-# Load Whisper model once
 whisper_model = whisper.load_model("base")
 
 def get_file_extension(filename: str) -> str:

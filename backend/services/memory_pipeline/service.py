@@ -14,7 +14,5 @@ def process_memory(db, title: str, source_type: str, raw_text: str):
         "summary": summary
     }
     memory = save_memory(db, memory_data)
-
     store_text(text=raw_text, metadata={"memory_id": str(memory.id), "title": title})
-
     return memory

@@ -7,7 +7,6 @@ load_dotenv()
 
 grok_api_key = os.getenv("GROQ_API_KEY")
 
-# Unsafe client for now (for dev)
 insecure_http_client = httpx.Client(verify=False)
 
 client = Groq(
