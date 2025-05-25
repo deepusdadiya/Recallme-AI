@@ -6,24 +6,22 @@ from services.memory_pipeline.service import process_memory
 from alchemist.postgresql.initializer import SourceType
 from PIL import Image
 import pytesseract
-import whisper
 import fitz
-
-whisper_model = whisper.load_model("base")
 
 def get_file_extension(filename: str) -> str:
     return filename.rsplit(".", 1)[-1].lower()
 
 def detect_file_type(extension: str):
-    if extension in ["png", "jpg", "jpeg", "bmp", "tiff"]:
+    ext = extension.lower()
+    if ext in ["png", "jpg", "jpeg", "bmp", "tiff"]:
         return "image"
-    if extension in ["mp3", "wav", "m4a"]:
+    if ext in ["mp3", "wav", "m4a"]:
         return "audio"
-    if extension in ["mp4", "mov", "avi", "mkv"]:
+    if ext in ["mp4", "mov", "avi", "mkv"]:
         return "video"
-    if extension == "pdf":
+    if ext == "pdf":
         return "pdf"
-    if extension == "txt":
+    if ext == "txt":
         return "text"
     return "unknown"
 
@@ -32,7 +30,9 @@ def extract_text_from_image(file_path: str) -> str:
     return pytesseract.image_to_string(image)
 
 def extract_text_from_audio(file_path: str) -> str:
-    result = whisper_model.transcribe(file_path)
+    import whisper
+    model = whisper.load_model("base")
+    result = model.transcribe(file_path)
     return result["text"]
 
 def extract_audio_from_video(video_path: str, output_audio_path: str):
@@ -66,7 +66,9 @@ def extract_text_from_txt(file_path: str) -> str:
 
 def handle_file_upload(db, file: UploadFile):
     suffix = os.path.splitext(file.filename)[1]
-    file_type = detect_file_type(suffix)
+    extension = suffix.lstrip('.')
+    file_type = detect_file_type(extension)
+    print("Detected file type:", file_type)
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
         temp_file.write(file.file.read())
