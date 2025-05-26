@@ -5,22 +5,11 @@ from sqlalchemy.orm import Session
 from alchemist.postgresql.functions import User
 import httpx
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-
-# SMTP_USER = "deepusdadiyaofficial@gmail.com"
-# SMTP_PASS = "xown ygju rcsg kvlz"
-
-# SMTP_USER="deepusdadiyaofficial@gmail.com"
-# SMTP_PASS="PIQd9wZkhcWbXN0C"
-# SMTP_HOST="smtp-relay.brevo.com"
-# SMTP_PORT=587
-
-# "re_hwhBUfad_3t1DZxRXa241unqQv2tMjbFq"
-
-
-RESEND_API_KEY="re_hwhBUfad_3t1DZxRXa241unqQv2tMjbFq"
-RESEND_FROM="onboarding@resend.dev"
-
+RESEND_API_KEY= os.getenv("RESEND_API_KEY")
+RESEND_FROM= os.getenv("RESEND_FROM")
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
@@ -57,7 +46,7 @@ def send_otp_email(to_email: str, otp: str):
 def create_user(db: Session, email: str, password: str):
     hashed_pw = hash_password(password)
     otp = generate_otp()
-    expiry = datetime.utcnow() + timedelta(minutes=10)
+    expiry = datetime.now() + timedelta(minutes=10)
 
     user = User(
         email=email,
