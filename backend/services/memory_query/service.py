@@ -1,4 +1,5 @@
-from vectorstore.faiss_service import search_memory
+from vectorstore.pgvector_service import search_memory_pgvector
+from sqlalchemy.orm import Session
 from groq import Groq
 import httpx
 import os
@@ -14,9 +15,9 @@ client = Groq(
     http_client=insecure_http_client
 )
 
-def answer_query(query: str):
+def answer_query(db: Session, query: str):
     # 1. Search similar memory chunks
-    docs = search_memory(query)
+    docs = search_memory_pgvector(db, query)
     context = "\n\n".join([doc.page_content for doc in docs])
 
     # 2. Prepare chat prompt

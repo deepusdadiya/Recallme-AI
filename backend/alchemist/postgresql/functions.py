@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
 import uuid
 import enum
 import datetime
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from pgvector.sqlalchemy import Vector
 
 Base = declarative_base()
 
@@ -21,4 +22,13 @@ class Memory(Base):
     source_type = Column(Enum(SourceType))
     raw_text = Column(Text)
     summary = Column(Text)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class MemoryChunk(Base):
+    __tablename__ = "memory_chunks"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    memory_id = Column(UUID(as_uuid=True), ForeignKey("memories.id"), nullable=False)
+    chunk_text = Column(Text, nullable=False)
+    embedding = Column(Vector(768))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
