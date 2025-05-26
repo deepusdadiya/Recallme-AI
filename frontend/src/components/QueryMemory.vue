@@ -21,10 +21,10 @@
       <p class="text-gray-700 mb-2 font-semibold">📎 Matched Memory Chunks:</p>
       <ul class="space-y-2 text-sm">
         <li
-          v-for="match in matches"
-          :key="match.metadata.chunk_id"
-          class="bg-blue-50 border p-3 rounded">
-          {{ match.page_content }}
+        v-for="match in matches"
+        :key="match.metadata?.chunk_id"
+        class="bg-blue-50 border p-3 rounded">
+        {{ match.content }}
         </li>
       </ul>
     </div>
@@ -48,6 +48,7 @@ export default {
         const res = await queryMemory(this.query);
         this.answer = res.data.answer;
         this.matches = res.data.matches;
+        console.log("LLM response:", res.data);
       } catch (err) {
         this.answer = 'Error occurred while querying.';
         console.error(err);
