@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum, Boolean
 from sqlalchemy.orm import declarative_base
 import uuid
 import enum
@@ -22,7 +22,7 @@ class Memory(Base):
     source_type = Column(Enum(SourceType))
     raw_text = Column(Text)
     summary = Column(Text)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.now)
 
 
 class MemoryChunk(Base):
@@ -31,4 +31,15 @@ class MemoryChunk(Base):
     memory_id = Column(UUID(as_uuid=True), ForeignKey("memories.id"), nullable=False)
     chunk_text = Column(Text, nullable=False)
     embedding = Column(Vector(768))
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String, unique=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_verified = Column(Boolean, default=False)
+    otp_code = Column(String, nullable=True)
+    otp_expiry = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.now)
