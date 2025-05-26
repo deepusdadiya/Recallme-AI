@@ -2,7 +2,7 @@ from langchain_core.embeddings import Embeddings
 from typing import List
 
 class SentenceTransformerEmbeddings(Embeddings):
-    def __init__(self, model_name='all-MiniLM-L6-v2'):
+    def __init__(self, model_name='sentence-transformers/all-mpnet-base-v2'):
         from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(model_name)
 
