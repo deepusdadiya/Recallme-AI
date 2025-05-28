@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from groq import Groq
 import httpx
 import os
+from uuid import UUID
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -46,10 +47,20 @@ def answer_query(db: Session, query: str):
     # 4. Extract answer
     answer = completion.choices[0].message.content
 
+    def convert_metadata(metadata: dict):
+        return {
+            k: str(v) if isinstance(v, UUID) else v
+            for k, v in metadata.items()
+        }
+
+
     return {
         "answer": answer,
         "matches": [
-            {"content": doc.page_content, "metadata": doc.metadata}
+            {
+                "content": doc.page_content,
+                "metadata": convert_metadata(doc.metadata)
+            }
             for doc in docs
         ]
     }

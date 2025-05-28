@@ -31,39 +31,53 @@
           :key="match.metadata.chunk_id"
           class="bg-white/10 border border-white/10 p-3 rounded"
         >
-          {{ match.page_content }}
+          {{ match.content }}
         </li>
       </ul>
     </div>
   </div>
 </template>
 
-<script>
-import { queryMemory } from '../api';
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
 
-export default {
-  data() {
-    return {
-      query: '',
-      answer: '',
-      matches: []
-    };
-  },
-  methods: {
-    async submitQuery() {
-      try {
-        const res = await queryMemory({ query: this.query });
-        this.answer = res.data.answer;
-        this.matches = res.data.matches || [];
-        console.log("LLM response:", res.data);
-      } catch (err) {
-        this.answer = '❌ Something went wrong. Please try again.';
-        this.matches = [];
-        console.error('Query error:', err);
+const queryText = ref('')
+const answer = ref('')
+const matches = ref([])
+
+const submitQuery = async () => {
+  const payload = {
+    query: queryText.value.trim()
+  }
+
+  console.log("Sending query payload:", payload)
+
+  try {
+    const response = await axios.post(
+      'http://localhost:8000/api/memory/query',
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
+    )
+
+    console.log("Response received:", response.data)
+
+    answer.value = response.data.answer
+    matches.value = response.data.matches
+  } catch (error) {
+    if (error.response) {
+      console.error("Query error:", error)
+      console.error("Status:", error.response.status)
+      console.error("Data:", error.response.data)
+    } else {
+      console.error("Generic error:", error.message)
     }
   }
-};
+}
 </script>
 
 <style scoped>

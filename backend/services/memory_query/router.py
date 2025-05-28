@@ -6,6 +6,6 @@ from alchemist.postgresql.resource import get_db
 
 router = APIRouter()
 
-@router.post("/query")
+@router.post("/query", response_model=MemoryQueryResponse)
 def query_memory(req: MemoryQueryRequest, db: Session = Depends(get_db)):
     return answer_query(db, req.query)
