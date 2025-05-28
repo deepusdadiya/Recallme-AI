@@ -1,20 +1,18 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">📂 Upload Memory</h2>
-    <input type="file" @change="handleFile" class="block w-full text-sm text-gray-700 mb-4" />
+  <div class="space-y-4">
+    <h2 class="text-lg font-bold text-white mb-2">🗂️ Upload Memory</h2>
+    <input
+      type="file"
+      @change="handleFile"
+      class="bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-400 rounded px-3 py-2 w-full"
+    />
     <button
       @click="submitFile"
-      class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+      class="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-4 py-2 rounded shadow w-full"
+    >
       Upload
     </button>
-
-    <p v-if="message" class="mt-4 text-sm" :class="{
-      'text-green-600': messageColor === 'green',
-      'text-red-600': messageColor === 'red',
-      'text-orange-600': messageColor === 'orange'
-    }">
-      {{ message }}
-    </p>
+    <p v-if="message" :class="`text-sm mt-2 text-${messageColor}-400`">{{ message }}</p>
   </div>
 </template>
 
@@ -38,23 +36,24 @@ export default {
       const formData = new FormData();
       formData.append('file', this.file);
 
-    try {
-    const res = await uploadFile(formData);
-    console.log("Upload response:", res);
-    const status = res?.data?.status || null;
-    if (status === 'success') {
-        this.message = '✅ Upload successful!';
-        this.messageColor = 'green';
-    } else {
-        this.message = '⚠️ Upload may have failed.';
-        this.messageColor = 'orange';
-    }
-    } catch (err) {
-    this.message = '❌ Upload failed.';
-    this.messageColor = 'red';
-    console.error("Upload error:", err);
-    }
+      try {
+        const res = await uploadFile(formData);
+        if (res.status === 200 && res.data.status === 'success') {
+          this.message = '✅ Upload successful!';
+          this.messageColor = 'green';
+        } else {
+          this.message = '⚠️ Upload may have failed.';
+          this.messageColor = 'yellow';
+        }
+      } catch (err) {
+        this.message = '❌ Upload failed.';
+        this.messageColor = 'red';
+        console.error(err);
+      }
     }
   }
 };
 </script>
+
+<style scoped>
+</style>
