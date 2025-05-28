@@ -13,9 +13,11 @@
               <em class="block mt-2 text-sm text-pink-200">"What did I say about GPT-4 yesterday?"</em>
             </p>
             <div class="flex space-x-4">
-              <button class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-full">
-                Get Started
-              </button>
+                <router-link to="/login">
+                <button class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-full">
+                    Get Started
+                </button>
+                </router-link>
               <button class="bg-white text-gray-900 hover:bg-gray-200 font-semibold py-2 px-6 rounded-full">
                 Explore Demo
               </button>
