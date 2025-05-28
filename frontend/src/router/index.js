@@ -1,17 +1,21 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HeroPage from '../views/HeroPage.vue'
-import LoginPage from '../views/LoginPage.vue'
-import DashboardPage from '../views/DashboardPage.vue'
+// src/router/index.js
+import { createRouter, createWebHistory } from 'vue-router';
+import LoginPage from '../components/LoginPage.vue';
+import Dashboard from '../views/Dashboard.vue';
+import UploadMemory from '../components/UploadFile.vue';
+import AskMemory from '../components/QueryMemory.vue';
 
 const routes = [
-  { path: '/', component: HeroPage },
+  { path: '/', redirect: '/login' },
   { path: '/login', component: LoginPage },
-  { path: '/dashboard', component: DashboardPage }
-]
+  { path: '/dashboard', component: Dashboard },
+  { path: '/upload', component: UploadMemory },
+  { path: '/ask', component: AskMemory },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

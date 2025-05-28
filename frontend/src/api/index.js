@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:8000', // FastAPI backend URL
+  baseURL: 'http://localhost:8000',
 });
 
 export const uploadFile = (formData) => API.post('/api/file/upload', formData);
