@@ -25,27 +25,51 @@ def store_text_pgvector(db: Session, text: str, metadata: Dict):
             memory_id=metadata["memory_id"],
             chunk_text=chunk,
             embedding=embedding,
+            title=metadata.get("title"),
+            source_type=metadata.get("source_type"),
         )
         db.add(db_chunk)
 
     db.commit()
 
-def search_memory_pgvector(db: Session, query: str, top_k: int = 5) -> List[Document]:
+def search_memory_pgvector(db: Session, query: str, top_k: int = 5, filter_by: Dict = None) -> List[Document]:
     query_embedding = embedding_model.embed_query(query)
     embedding_str = f"[{','.join(map(str, query_embedding))}]"
+    # Build WHERE clause dynamically
+    where_clauses = []
+    if filter_by:
+        if "source_type" in filter_by:
+            where_clauses.append(f"source_type = :source_type")
+        if "title" in filter_by:
+            where_clauses.append(f"title ILIKE :title")
+
+    where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
 
     sql = f"""
-        SELECT chunk_text, memory_id
+        SELECT chunk_text, memory_id, title, source_type
         FROM memory_chunks
+        {where_sql}
         ORDER BY embedding <#> '{embedding_str}'
         LIMIT {top_k};
     """
 
-    result = db.execute(text(sql))
+        # Build params dictionary for SQL query
+    params = {}
+    if filter_by:
+        if "source_type" in filter_by:
+            params["source_type"] = filter_by["source_type"]
+        if "title" in filter_by:
+            params["title"] = f"%{filter_by['title']}%"
+
+    result = db.execute(text(sql), params)
     documents = [
         Document(
             page_content=row[0],
-            metadata={"memory_id": row[1]}
+            metadata={
+                "memory_id": row[1],
+                "title": row[2],
+                "source_type": row[3]
+            }
         )
         for row in result.fetchall()
     ]
