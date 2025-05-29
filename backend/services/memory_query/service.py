@@ -16,28 +16,50 @@ client = Groq(
     http_client=insecure_http_client
 )
 
-SYSTEM_PROMPT = """You are Recallme-AI. First determine if the user is asking to list all their memories, or search for content inside them.
+SYSTEM_PROMPT = """
+You are Recallme-AI, a concise and intelligent personal memory assistant.
 
-If the question is about listing memories (like 'what is my memory from today' or 'show what I've uploaded'), respond with a list of stored memories (titles, source type, summaries).
+Start by determining the user's intent:
 
-If the question is asking for information (like 'when is my next trip'), search context and give an answer based on the content of the uploaded memories."""
+1. **Memory Listing Request**  
+   If the query is about listing memories (e.g., “What have I uploaded?”, “Show my memories from today”), return only relevant memory summaries. Format each item as:  
+   - title (source_type, summary, created_at: DD Month YYYY)  
+   Include `created_at` only if available. Avoid unnecessary details.
 
-def list_user_memories(db: Session):
-    memories = db.query(Memory).order_by(Memory.created_at.desc()).all()
+2. **Information Search Request**  
+   If the query is about retrieving specific information (e.g., “When is my next trip?”, “What did I say about LLM?”), search the memory content and answer directly and precisely. Do not list all matching memories — only respond with the relevant fact or answer derived from context.  
+   If a memory contains a `created_at` date and the user asks **"when"**, return an answer like:  
+   - “You explored LLM on 29 May 2025.”  
+   Keep it short and relevant.
+
+Guidelines:
+- Use only contextually relevant memories.
+- Do not mention or summarize unrelated entries.
+- Never say “based on your memories...” or explain your reasoning.
+- If no relevant answer or date is found, respond clearly: “I couldn’t find a memory related to that.”
+
+Your tone should be helpful, clear, and concise.
+"""
+
+def list_user_memories(db: Session, filter_by: dict = None):
+    query = db.query(Memory)
+    if filter_by:
+        if "title" in filter_by:
+            query = query.filter(Memory.title.ilike(f"%{filter_by['title']}%"))
+        if "source_type" in filter_by:
+            query = query.filter(Memory.source_type == filter_by["source_type"])
+
+    memories = query.order_by(Memory.created_at.desc()).all()
 
     if not memories:
-        return {
-            "answer": "You haven't uploaded any memories yet.",
-            "matches": []
-        }
+        return "No matching memories found."
 
     memory_lines = [
-        f"- {m.title} (source: {m.source_type}, summary: {m.summary or 'No summary'})"
+        f"- {m.title} (source: {m.source_type}, summary: {m.summary or 'No summary'}, created_at: {m.created_at.strftime('%d %B %Y')})"
         for m in memories
     ]
+    return "\n".join(memory_lines)
 
-    memory_context = "\n".join(memory_lines)
-    return memory_context
 
 def answer_query(db: Session, query: str, source_type: str = None, title: str = None):
     # 1. Vector search results
@@ -59,18 +81,12 @@ def answer_query(db: Session, query: str, source_type: str = None, title: str = 
     memory_context = "\n\n".join(context_blocks)
 
     # 3. Include full memory list as background context
-    full_memory_list = list_user_memories(db)
+    full_memory_list = list_user_memories(db, filter_by={"title": "LLM"})
 
     # 4. Construct prompt
     messages = [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT
-        },
-        {
-            "role": "user",
-            "content": f"Here is the list of your stored memories:\n{full_memory_list}\n\nNow, based on this context:\n{memory_context}\n\nQuestion:\n{query}"
-        }
+    {"role": "system", "content": SYSTEM_PROMPT},
+    {"role": "user", "content": f"Here are your relevant memories:\n{full_memory_list}\n\nAnd here is detailed context:\n{memory_context}\n\nQuestion: {query}"}
     ]
 
     # 5. Call Groq LLM
