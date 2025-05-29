@@ -32,6 +32,8 @@ class MemoryChunk(Base):
     chunk_text = Column(Text, nullable=False)
     embedding = Column(Vector(768))
     created_at = Column(DateTime, default=datetime.datetime.now)
+    title = Column(Text)
+    source_type = Column(Text)
 
 
 class User(Base):
