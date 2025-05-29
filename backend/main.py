@@ -15,10 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(memory_router, prefix="/api/memory")
-app.include_router(query_router, prefix="/api/memory")
-app.include_router(file_router, prefix="/api/file")
-app.include_router(file_router, prefix="/api/file")
-app.include_router(auth_router, prefix="/api/auth")
-app.include_router(auth_router, prefix="/api/auth")
-app.include_router(auth_router, prefix="/api/auth")
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(file_router, prefix="/api/file", tags=["File Upoload"])
+app.include_router(memory_router, prefix="/api/memory", tags=["Memory Upload"])
+app.include_router(query_router, prefix="/api/memory", tags=["QnA"])
