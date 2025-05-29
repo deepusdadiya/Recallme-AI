@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum, Boolean
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum, Boolean, TIMESTAMP
 from sqlalchemy.orm import declarative_base
 import uuid
 import enum
