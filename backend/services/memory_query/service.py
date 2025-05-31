@@ -41,8 +41,8 @@ Guidelines:
 Your tone should be helpful, clear, and concise.
 """
 
-def list_user_memories(db: Session, filter_by: dict = None):
-    query = db.query(Memory)
+def list_user_memories(db: Session, user_id: str, filter_by: dict = None):
+    query = db.query(Memory).filter(Memory.user_id == user_id)
     if filter_by:
         if "title" in filter_by:
             query = query.filter(Memory.title.ilike(f"%{filter_by['title']}%"))
@@ -50,7 +50,6 @@ def list_user_memories(db: Session, filter_by: dict = None):
             query = query.filter(Memory.source_type == filter_by["source_type"])
 
     memories = query.order_by(Memory.created_at.desc()).all()
-
     if not memories:
         return "No matching memories found."
 
@@ -61,9 +60,8 @@ def list_user_memories(db: Session, filter_by: dict = None):
     return "\n".join(memory_lines)
 
 
-def answer_query(db: Session, query: str, source_type: str = None, title: str = None):
-    # 1. Vector search results
-    filters = {}
+def answer_query(db: Session, query: str, user_id: str, source_type: str = None, title: str = None):
+    filters = {"user_id": user_id}
     if source_type:
         filters["source_type"] = source_type
     if title:
@@ -71,7 +69,7 @@ def answer_query(db: Session, query: str, source_type: str = None, title: str = 
 
     docs = search_memory_pgvector(db, query, filter_by=filters)
 
-    # 2. Prepare memory context for LLM (raw chunks + summaries)
+    # Build context from matched docs
     context_blocks = []
     for doc in docs:
         title = doc.metadata.get("title", "Untitled")
@@ -80,16 +78,14 @@ def answer_query(db: Session, query: str, source_type: str = None, title: str = 
         context_blocks.append(f"Title: {title}\nSummary: {summary}\nContent: {content}")
     memory_context = "\n\n".join(context_blocks)
 
-    # 3. Include full memory list as background context
-    full_memory_list = list_user_memories(db, filter_by={"title": "LLM"})
+    # Get user’s full memory list
+    full_memory_list = list_user_memories(db, user_id=user_id, filter_by={"title": "LLM"})
 
-    # 4. Construct prompt
     messages = [
-    {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": f"Here are your relevant memories:\n{full_memory_list}\n\nAnd here is detailed context:\n{memory_context}\n\nQuestion: {query}"}
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Here are your relevant memories:\n{full_memory_list}\n\nAnd here is detailed context:\n{memory_context}\n\nQuestion: {query}"}
     ]
 
-    # 5. Call Groq LLM
     completion = client.chat.completions.create(
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         messages=messages,

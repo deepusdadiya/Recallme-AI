@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from vectorstore.wrapper import SentenceTransformerEmbeddings
-from alchemist.postgresql.functions import MemoryChunk  # you'll create this table
-import numpy as np
+from alchemist.postgresql.functions import MemoryChunk
 
 embedding_model = SentenceTransformerEmbeddings()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
@@ -27,6 +26,7 @@ def store_text_pgvector(db: Session, text: str, metadata: Dict):
             embedding=embedding,
             title=metadata.get("title"),
             source_type=metadata.get("source_type"),
+            user_id=metadata["user_id"]
         )
         db.add(db_chunk)
 
@@ -35,13 +35,20 @@ def store_text_pgvector(db: Session, text: str, metadata: Dict):
 def search_memory_pgvector(db: Session, query: str, top_k: int = 5, filter_by: Dict = None) -> List[Document]:
     query_embedding = embedding_model.embed_query(query)
     embedding_str = f"[{','.join(map(str, query_embedding))}]"
-    # Build WHERE clause dynamically
+    
     where_clauses = []
+    params = {}
+
     if filter_by:
+        if "user_id" in filter_by:
+            where_clauses.append("user_id = :user_id")
+            params["user_id"] = str(filter_by["user_id"])
         if "source_type" in filter_by:
-            where_clauses.append(f"source_type = :source_type")
+            where_clauses.append("source_type = :source_type")
+            params["source_type"] = filter_by["source_type"]
         if "title" in filter_by:
-            where_clauses.append(f"title ILIKE :title")
+            where_clauses.append("title ILIKE :title")
+            params["title"] = f"%{filter_by['title']}%"
 
     where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
 
@@ -53,16 +60,8 @@ def search_memory_pgvector(db: Session, query: str, top_k: int = 5, filter_by: D
         LIMIT {top_k};
     """
 
-        # Build params dictionary for SQL query
-    params = {}
-    if filter_by:
-        if "source_type" in filter_by:
-            params["source_type"] = filter_by["source_type"]
-        if "title" in filter_by:
-            params["title"] = f"%{filter_by['title']}%"
-
     result = db.execute(text(sql), params)
-    documents = [
+    return [
         Document(
             page_content=row[0],
             metadata={
@@ -73,4 +72,3 @@ def search_memory_pgvector(db: Session, query: str, top_k: int = 5, filter_by: D
         )
         for row in result.fetchall()
     ]
-    return documents
