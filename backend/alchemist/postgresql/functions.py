@@ -34,6 +34,7 @@ class MemoryChunk(Base):
     created_at = Column(DateTime, default=datetime.datetime.now)
     title = Column(Text)
     source_type = Column(Text)
+    user_id = Column(Integer, nullable=False)
 
 
 class User(Base):

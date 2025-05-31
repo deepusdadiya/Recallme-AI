@@ -8,4 +8,4 @@ router = APIRouter()
 
 @router.post("/query", response_model=MemoryQueryResponse)
 def query_memory(req: MemoryQueryRequest, db: Session = Depends(get_db)):
-    return answer_query(db, req.query, req.source_type, req.title)
+    return answer_query(db, req.query, req.source_type, req.title, req.user_id)

@@ -4,7 +4,8 @@ from typing import List, Optional
 class MemoryQueryRequest(BaseModel):
     query: str
     source_type: Optional[str] = None  # e.g. 'pdf', 'image', etc.
-    title: Optional[str] = None  
+    title: Optional[str] = None 
+    user_id: str 
 
 class MemoryMatch(BaseModel):
     content: str
