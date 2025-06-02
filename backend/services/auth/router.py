@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from alchemist.postgresql.resource import get_db
 from .schema import SignupRequest, OTPVerifyRequest, LoginRequest
 from .service import create_user, verify_user_otp, authenticate_user
+from services.auth.token_service import create_access_token
 
 router = APIRouter()
 
@@ -22,5 +23,11 @@ def verify(req: OTPVerifyRequest, db: Session = Depends(get_db)):
 def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(db, req.email, req.password)
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials or email not verified")
-    return {"status": "Login successful", "user_id": str(user.id)}
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    token_data = {
+        "sub": str(user.email),
+        "user_id": str(user.id)
+    }
+    access_token = create_access_token(token_data)
+    return {"access_token": access_token, "token_type": "bearer"}
