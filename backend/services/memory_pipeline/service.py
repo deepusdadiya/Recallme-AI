@@ -26,7 +26,8 @@ def process_memory(db, title: str, source_type: str, raw_text: str):
                 "memory_id": str(memory.id),
                 "title": title,
                 "summary": summary,
-                "chunk_index": i
+                "chunk_index": i,
+                "user_id": memory.user_id 
             }
         )
     return memory
