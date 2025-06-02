@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { login } from '../api/auth';
 
 export default {
   data() {
@@ -73,19 +73,15 @@ export default {
   methods: {
     async submitLogin() {
       try {
-        const res = await axios.post('http://localhost:8000/api/auth/login', {
-          email: this.email,
-          password: this.password,
-        });
-
-        if (res.data.status === 'Login successful') {
+        const token = await login(this.email, this.password);
+        if (token) {
           this.errorMessage = '';
           this.showToast = true;
 
           setTimeout(() => {
             this.showToast = false;
             this.$router.push('/dashboard');
-          }, 1000); // 1 second delay
+          }, 1000);
         }
       } catch (err) {
         this.errorMessage = 'Login failed. Please check your credentials or verify your email.';
@@ -95,9 +91,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-body {
-  font-family: 'Inter', sans-serif;
-}
-</style>

@@ -32,7 +32,6 @@ export default {
       this.file = e.target.files[0];
     },
     async submitFile() {
-      if (!this.file) return;
       const formData = new FormData();
       formData.append('file', this.file);
 
@@ -54,6 +53,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-</style>
