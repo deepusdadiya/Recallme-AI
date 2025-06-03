@@ -64,7 +64,7 @@ def extract_text_from_txt(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-def handle_file_upload(db, file: UploadFile):
+def handle_file_upload(db, file: UploadFile, user_id: int):
     suffix = os.path.splitext(file.filename)[1]
     extension = suffix.lstrip('.')
     file_type = detect_file_type(extension)
@@ -92,7 +92,8 @@ def handle_file_upload(db, file: UploadFile):
             db,
             title=file.filename,
             source_type=file_type,
-            raw_text=text
+            raw_text=text,
+            user_id=user_id
         )
         return memory
 
