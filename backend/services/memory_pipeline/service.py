@@ -1,14 +1,14 @@
-from config.config import DUMMY_USER_ID
 from vectorstore.pgvector_service import store_text_pgvector
 from alchemist.postgresql.initializer import SourceType
 from alchemist.postgresql.resource import save_memory
 from services.memory_pipeline.summarizer import summarize_text
 from textwrap import wrap
+from uuid import UUID
 
-def process_memory(db, title: str, source_type: str, raw_text: str):
+def process_memory(db, title: str, source_type: str, raw_text: str, user_id: UUID):
     summary = summarize_text(raw_text)
     memory_data = {
-        "user_id": DUMMY_USER_ID,
+        "user_id": user_id,
         "title": title,
         "source_type": SourceType(source_type),
         "raw_text": raw_text,
@@ -27,7 +27,7 @@ def process_memory(db, title: str, source_type: str, raw_text: str):
                 "title": title,
                 "summary": summary,
                 "chunk_index": i,
-                "user_id": memory.user_id 
+                "user_id": user_id 
             }
         )
     return memory

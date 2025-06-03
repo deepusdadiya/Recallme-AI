@@ -4,12 +4,13 @@ from alchemist.postgresql.resource import get_db
 from .service import handle_file_upload
 from services.auth.dependencies import get_current_user
 from alchemist.postgresql.functions import User
+from uuid import UUID
 
 router = APIRouter()
 
 @router.post("/upload")
-def upload_file(file: UploadFile, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    result = handle_file_upload(db, file, user_id=user.id)
+def upload_file(file: UploadFile, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    result = handle_file_upload(db, file, user_id=current_user.id)
     return {"status": "success", "id": str(result.id)}
 
 

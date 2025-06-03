@@ -4,6 +4,7 @@ from alchemist.postgresql.resource import get_db
 from .schema import SignupRequest, OTPVerifyRequest, LoginRequest
 from .service import create_user, verify_user_otp, authenticate_user
 from services.auth.token_service import create_access_token
+from services.auth.token_service import authenticate_user_and_create_token
 
 router = APIRouter()
 
@@ -19,15 +20,24 @@ def verify(req: OTPVerifyRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=msg)
     return {"status": "Email verified successfully"}
 
-@router.post("/login")
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = authenticate_user(db, req.email, req.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+# @router.post("/login")
+# def login(req: LoginRequest, db: Session = Depends(get_db)):
+#     user = authenticate_user(db, req.email, req.password)
+#     if not user:
+#         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    token_data = {
-        "sub": str(user.email),
-        "user_id": str(user.id)
-    }
-    access_token = create_access_token(token_data)
-    return {"access_token": access_token, "token_type": "bearer"}
+#     token_data = {
+#         "sub": user.email,
+#         "user_id": str(user.id)
+#     }
+#     access_token = create_access_token(token_data)
+#     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    return authenticate_user_and_create_token(
+        db=db,
+        email=form_data.username,  # OAuth2 spec uses `username` as the field
+        password=form_data.password
+    )
