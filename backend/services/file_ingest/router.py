@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, Depends
+from fastapi import APIRouter, UploadFile, Depends, Security
 from sqlalchemy.orm import Session
 from alchemist.postgresql.resource import get_db
 from .service import handle_file_upload
@@ -9,7 +9,7 @@ from uuid import UUID
 router = APIRouter()
 
 @router.post("/upload")
-def upload_file(file: UploadFile, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def upload_file(file: UploadFile, db: Session = Depends(get_db), current_user: User = Security(get_current_user)):
     result = handle_file_upload(db, file, user_id=current_user.id)
     return {"status": "success", "id": str(result.id)}
 
