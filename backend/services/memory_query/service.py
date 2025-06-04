@@ -78,8 +78,8 @@ def answer_query(db: Session, query: str, user_id: str, source_type: str = None,
         context_blocks.append(f"Title: {title}\nSummary: {summary}\nContent: {content}")
     memory_context = "\n\n".join(context_blocks)
 
-    # Get user’s full memory list
-    full_memory_list = list_user_memories(db, user_id=user_id, filter_by={"title": "LLM"})
+    # Get the user's full memory list to provide additional context
+    full_memory_list = list_user_memories(db, user_id=user_id)
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
