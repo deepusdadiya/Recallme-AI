@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Form, Body
+from fastapi import APIRouter, Depends, HTTPException, Form, Body, Request
 from sqlalchemy.orm import Session
 from alchemist.postgresql.resource import get_db
 from .schema import SignupRequest, OTPVerifyRequest, LoginRequest
 from .service import create_user, verify_user_otp, authenticate_user
 from services.auth.token_service import create_access_token
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
@@ -18,13 +19,6 @@ def verify(req: OTPVerifyRequest, db: Session = Depends(get_db)):
     if not ok:
         raise HTTPException(status_code=400, detail=msg)
     return {"status": "Email verified successfully"}
-
-from fastapi import APIRouter, Depends, Request, HTTPException, Form
-from sqlalchemy.orm import Session
-from alchemist.postgresql.resource import get_db
-from services.auth.token_service import create_access_token
-
-router = APIRouter()
 
 @router.post("/login")
 async def login(
@@ -56,8 +50,6 @@ async def login(
     access_token = create_access_token(token_data)
     return {"access_token": access_token, "token_type": "bearer"}
 
-
-from fastapi.security import OAuth2PasswordRequestForm
 
 @router.post("/token")
 def login_with_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
