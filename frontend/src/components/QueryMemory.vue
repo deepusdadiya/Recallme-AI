@@ -4,7 +4,7 @@
 
     <form @submit.prevent="submitQuery" class="space-y-4">
       <input
-        v-model="query"
+        v-model="queryText"
         type="text"
         placeholder="e.g., What did I discuss about project X?"
         class="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400"
@@ -28,7 +28,7 @@
       <ul class="space-y-2 text-sm">
         <li
           v-for="match in matches"
-          :key="match.metadata.chunk_id"
+          :key="match.metadata.memory_id"
           class="bg-white/10 border border-white/10 p-3 rounded"
         >
           {{ match.content }}
