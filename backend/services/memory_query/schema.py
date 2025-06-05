@@ -5,7 +5,7 @@ class MemoryQueryRequest(BaseModel):
     query: str
     source_type: Optional[str] = None  # e.g. 'pdf', 'image', etc.
     title: Optional[str] = None 
-    user_id: str 
+    user_id: Optional[str] = None  
 
 class MemoryMatch(BaseModel):
     content: str

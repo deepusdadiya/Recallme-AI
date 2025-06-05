@@ -19,6 +19,11 @@
       <p v-if="message" :class="`mt-4 text-sm font-medium ${messageColorClass}`">
         {{ message }}
       </p>
+      <p class="text-white/60 text-sm mt-2">
+        Supported formats: PDF, DOCX, TXT, JPG, PNG
+      </p>
+      <p v-if="loading" class="text-pink-400 mt-4">⏳ Uploading...</p>
+      <p v-if="error" class="text-red-400 mt-4">{{ error }}</p>
     </div>
   </div>
 </template>
@@ -31,7 +36,9 @@ export default {
     return {
       file: null,
       message: '',
-      messageColorClass: ''
+      messageColorClass: '',
+      loading: false,
+      error: ''
     };
   },
   methods: {
@@ -40,10 +47,14 @@ export default {
     },
     async submitFile() {
       if (!this.file) {
-        this.message = '⚠️ Please choose a file.';
+        this.message = '❗Please select a file first.';
         this.messageColorClass = 'text-yellow-400';
         return;
       }
+
+      this.loading = true;
+      this.error = '';
+      this.message = '';
 
       const formData = new FormData();
       formData.append('file', this.file);
@@ -58,9 +69,10 @@ export default {
           this.messageColorClass = 'text-yellow-400';
         }
       } catch (err) {
-        this.message = '❌ Upload failed.';
-        this.messageColorClass = 'text-red-400';
+        this.error = '❌ Upload failed. Check console for details.';
         console.error(err);
+      } finally {
+        this.loading = false;
       }
     }
   }
