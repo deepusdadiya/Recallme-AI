@@ -17,6 +17,8 @@
         >
           Ask
         </button>
+        <p v-if="loading" class="text-pink-400 mt-4">⏳ Thinking...</p>
+        <p v-if="error" class="text-red-400 mt-4">{{ error }}</p>
       </form>
 
       <div v-if="answer" class="mt-8">
@@ -26,7 +28,7 @@
         </div>
       </div>
 
-      <div v-if="matches.length" class="mt-8">
+      <!-- <div v-if="matches.length" class="mt-8">
         <p class="text-white/80 text-lg font-semibold mb-2">📎 Matched Memory Chunks:</p>
         <ul class="space-y-3">
           <li
@@ -37,7 +39,7 @@
             {{ match.content }}
           </li>
         </ul>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -49,31 +51,45 @@ import axios from 'axios'
 const queryText = ref('')
 const answer = ref('')
 const matches = ref([])
+const loading = ref(false)
+const error = ref(null)
 
 const submitQuery = async () => {
   const token = localStorage.getItem('token')
+  if (!token) {
+    error.value = 'You must be logged in to submit a query.'
+    return
+  }
+
+  answer.value = ''
+  matches.value = []
+  error.value = null
+  loading.value = true
 
   try {
     const response = await axios.post(
       'http://localhost:8000/api/memory/query',
-  {
+      {
     query: queryText.value.trim(),
     source_type: null,
-    title: null,
-    user_id: null
+    title: null
   },
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       }
     )
+
     answer.value = response.data.answer
     matches.value = response.data.matches
-  } catch (error) {
-    answer.value = '❌ Error processing your query.'
-    console.error(error)
+  } catch (err) {
+    console.error(err)
+    error.value =
+      err?.response?.data?.detail || '❌ Error processing your query.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
