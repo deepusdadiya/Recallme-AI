@@ -10,11 +10,9 @@ from uuid import UUID
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")  # Adjust if different
-oauth2_scheme_1 = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 JWT_SECRET = os.getenv("JWT_SECRET")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    print("✅ Token extracted in get_current_user:", token)
     credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -32,17 +30,3 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
-
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-# JWT_SECRET = os.getenv("JWT_SECRET")
-
-# def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
-#     try:
-#         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-#         print("Decoded payload:", payload)
-#         user_id = payload.get("sub")
-#         if user_id is None:
-#             raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
-#         return UUID(user_id)
-#     except JWTError:
-#         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Could not validate token")
