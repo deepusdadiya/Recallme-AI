@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black px-4">
     <div class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-2xl shadow-lg p-8 text-white">
-      <h2 class="text-2xl font-bold mb-6 text-center">🧠 Ask a Memory Question</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">Ask me about your past Memories</h2>
 
       <form @submit.prevent="submitQuery" class="space-y-4">
         <input
           v-model="queryText"
           type="text"
-          placeholder="e.g., What did I say about GPT-4 yesterday?"
+          placeholder="e.g., What was my meeting discussion yesterday?"
           class="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
           required
         />
@@ -28,18 +28,6 @@
         </div>
       </div>
 
-      <!-- <div v-if="matches.length" class="mt-8">
-        <p class="text-white/80 text-lg font-semibold mb-2">📎 Matched Memory Chunks:</p>
-        <ul class="space-y-3">
-          <li
-            v-for="match in matches"
-            :key="match.metadata.memory_id"
-            class="bg-white/10 border border-white/10 p-3 rounded-md text-white/80 text-sm whitespace-pre-line"
-          >
-            {{ match.content }}
-          </li>
-        </ul>
-      </div> -->
     </div>
   </div>
 </template>

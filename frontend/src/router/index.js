@@ -12,7 +12,7 @@ const routes = [
   { path: '/login', component: LoginPage },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true }  },
   { path: '/upload', component: UploadMemory, meta: { requiresAuth: true }  },
-  { path: '/ask', component: AskMemory, meta: { requiresAuth: true }  },
+  { path: '/query', component: AskMemory, meta: { requiresAuth: true }  },
   {path: '/signup', component: Signup}
 ];
 

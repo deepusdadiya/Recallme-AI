@@ -24,7 +24,7 @@
             📁 Upload a Memory
           </button>
         </router-link>
-        <router-link to="/ask">
+        <router-link to="/query">
           <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-full shadow transition duration-300">
             💬 Ask a Question
           </button>
