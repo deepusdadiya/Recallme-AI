@@ -21,20 +21,9 @@ def verify(req: OTPVerifyRequest, db: Session = Depends(get_db)):
     return {"status": "Email verified successfully"}
 
 @router.post("/login")
-async def login(
-    request: Request,
-    db: Session = Depends(get_db),
-    form_email: str = Form(None),
-    form_password: str = Form(None)
-):
-    try:
-        json_data = await request.json()
-        print("Received JSON data:", json_data)
-        email = json_data.get("email")
-        password = json_data.get("password")
-    except Exception:
-        email = form_email
-        password = form_password
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    email = form_data.username
+    password = form_data.password
 
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password required")

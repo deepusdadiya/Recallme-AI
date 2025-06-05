@@ -16,6 +16,6 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(file_router, prefix="/api/file", tags=["File Upoload"])
+app.include_router(file_router, prefix="/api/file", tags=["File Upload"])
 app.include_router(memory_router, prefix="/api/memory", tags=["Memory Upload"])
 app.include_router(query_router, prefix="/api/memory", tags=["QnA"])

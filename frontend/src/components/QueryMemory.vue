@@ -1,39 +1,43 @@
 <template>
-  <div class="bg-white/5 border border-white/20 rounded-xl p-6 w-full max-w-md text-white shadow-xl flex flex-col justify-between">
-    <h2 class="text-lg font-semibold mb-4">🧠 Ask a Question</h2>
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black px-4">
+    <div class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-2xl shadow-lg p-8 text-white">
+      <h2 class="text-2xl font-bold mb-6 text-center">🧠 Ask a Memory Question</h2>
 
-    <form @submit.prevent="submitQuery" class="space-y-4">
-      <input
-        v-model="queryText"
-        type="text"
-        placeholder="e.g., What did I discuss about project X?"
-        class="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400"
-        required
-      />
-      <button
-        type="submit"
-        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold px-4 py-2 rounded shadow"
-      >
-        Ask
-      </button>
-    </form>
-
-    <div v-if="answer" class="mt-6">
-      <p class="text-pink-300 font-semibold mb-2">💡 Answer:</p>
-      <p class="text-white/90">{{ answer }}</p>
-    </div>
-
-    <div v-if="matches.length" class="mt-6">
-      <p class="text-white/80 mb-2 font-semibold">📎 Matched Memory Chunks:</p>
-      <ul class="space-y-2 text-sm">
-        <li
-          v-for="match in matches"
-          :key="match.metadata.memory_id"
-          class="bg-white/10 border border-white/10 p-3 rounded"
+      <form @submit.prevent="submitQuery" class="space-y-4">
+        <input
+          v-model="queryText"
+          type="text"
+          placeholder="e.g., What did I say about GPT-4 yesterday?"
+          class="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+          required
+        />
+        <button
+          type="submit"
+          class="w-full py-3 text-lg font-bold text-white bg-gradient-to-r from-pink-600 to-purple-600 rounded-xl hover:from-pink-700 hover:to-purple-700 transition-all shadow-md"
         >
-          {{ match.content }}
-        </li>
-      </ul>
+          Ask
+        </button>
+      </form>
+
+      <div v-if="answer" class="mt-8">
+        <p class="text-pink-400 text-lg font-semibold mb-2">💡 Answer:</p>
+        <div class="bg-white/10 border border-white/20 p-4 rounded-lg text-white/90 whitespace-pre-line">
+          {{ answer }}
+        </div>
+      </div>
+
+      <div v-if="matches.length" class="mt-8">
+        <p class="text-white/80 text-lg font-semibold mb-2">📎 Matched Memory Chunks:</p>
+        <ul class="space-y-3">
+          <li
+            v-for="match in matches"
+            :key="match.metadata.memory_id"
+            class="bg-white/10 border border-white/10 p-3 rounded-md text-white/80 text-sm whitespace-pre-line"
+          >
+            {{ match.content }}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -47,35 +51,29 @@ const answer = ref('')
 const matches = ref([])
 
 const submitQuery = async () => {
-  const payload = {
-    query: queryText.value.trim()
-  }
-
-  console.log("Sending query payload:", payload)
+  const token = localStorage.getItem('token')
 
   try {
     const response = await axios.post(
       'http://localhost:8000/api/memory/query',
-      payload,
+  {
+    query: queryText.value.trim(),
+    source_type: null,
+    title: null,
+    user_id: null
+  },
       {
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }
     )
-
-    console.log("Response received:", response.data)
-
     answer.value = response.data.answer
     matches.value = response.data.matches
   } catch (error) {
-    if (error.response) {
-      console.error("Query error:", error)
-      console.error("Status:", error.response.status)
-      console.error("Data:", error.response.data)
-    } else {
-      console.error("Generic error:", error.message)
-    }
+    answer.value = '❌ Error processing your query.'
+    console.error(error)
   }
 }
 </script>
