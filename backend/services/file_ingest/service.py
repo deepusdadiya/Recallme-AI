@@ -7,6 +7,7 @@ from alchemist.postgresql.initializer import SourceType
 from PIL import Image
 import pytesseract
 import fitz
+import uuid
 
 def get_file_extension(filename: str) -> str:
     return filename.rsplit(".", 1)[-1].lower()
@@ -73,6 +74,15 @@ def handle_file_upload(db, file: UploadFile, user_id: int):
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
         temp_file.write(file.file.read())
         temp_file_path = temp_file.name
+
+    UPLOAD_DIR = "uploaded_files"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    filename = f"{uuid.uuid4()}{suffix}"
+    saved_path = os.path.join(UPLOAD_DIR, filename)
+
+    with open(saved_path, "wb") as out_file:
+        out_file.write(file.file.read())
 
     try:
         if file_type == "image":
