@@ -1,5 +1,4 @@
-import bcrypt, uuid, smtplib
-from email.message import EmailMessage
+import bcrypt, uuid
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from alchemist.postgresql.functions import User
