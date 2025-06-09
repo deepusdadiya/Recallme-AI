@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Form, Body, Request
 from sqlalchemy.orm import Session
 from alchemist.postgresql.resource import get_db
-from .schema import SignupRequest, OTPVerifyRequest, LoginRequest
+from .schema import SignupRequest, OTPVerifyRequest
 from .service import create_user, verify_user_otp, authenticate_user
 from services.auth.token_service import create_access_token
 from fastapi.security import OAuth2PasswordRequestForm

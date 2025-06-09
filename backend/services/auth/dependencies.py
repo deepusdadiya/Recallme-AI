@@ -6,10 +6,9 @@ from services.auth.token_service import decode_token
 from alchemist.postgresql.functions import User
 from alchemist.postgresql.resource import get_db
 import os
-from uuid import UUID
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")  # Adjust if different
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 JWT_SECRET = os.getenv("JWT_SECRET")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
