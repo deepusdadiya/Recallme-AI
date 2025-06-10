@@ -10,4 +10,4 @@ class UploadType(str, Enum):
 class MemoryUploadRequest(BaseModel):
     title: str
     source_type: UploadType
-    content: str  # can be base64 or raw text
+    content: str
