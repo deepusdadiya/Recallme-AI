@@ -9,8 +9,10 @@ import pytesseract
 import fitz
 import uuid
 
+
 def get_file_extension(filename: str) -> str:
     return filename.rsplit(".", 1)[-1].lower()
+
 
 def detect_file_type(extension: str):
     ext = extension.lower()
@@ -26,15 +28,18 @@ def detect_file_type(extension: str):
         return "text"
     return "unknown"
 
+
 def extract_text_from_image(file_path: str) -> str:
     image = Image.open(file_path)
     return pytesseract.image_to_string(image)
+
 
 def extract_text_from_audio(file_path: str) -> str:
     import whisper
     model = whisper.load_model("base")
     result = model.transcribe(file_path)
     return result["text"]
+
 
 def extract_audio_from_video(video_path: str, output_audio_path: str):
     cmd = [
@@ -47,12 +52,14 @@ def extract_audio_from_video(video_path: str, output_audio_path: str):
     ]
     subprocess.run(cmd, check=True)
 
+
 def extract_text_from_video(file_path: str) -> str:
     audio_path = file_path + ".wav"
     extract_audio_from_video(file_path, audio_path)
     text = extract_text_from_audio(audio_path)
     os.remove(audio_path)
     return text
+
 
 def extract_text_from_pdf(file_path: str) -> str:
     text = ""
@@ -61,9 +68,11 @@ def extract_text_from_pdf(file_path: str) -> str:
             text += page.get_text()
     return text
 
+
 def extract_text_from_txt(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
+
 
 def handle_file_upload(db, file: UploadFile, user_id: int):
     suffix = os.path.splitext(file.filename)[1]
@@ -97,7 +106,6 @@ def handle_file_upload(db, file: UploadFile, user_id: int):
             text = extract_text_from_txt(temp_file_path)
         else:
             raise ValueError("Unsupported file type.")
-
         memory = process_memory(
             db,
             title=file.filename,
@@ -106,6 +114,5 @@ def handle_file_upload(db, file: UploadFile, user_id: int):
             user_id=user_id
         )
         return memory
-
     finally:
         os.remove(temp_file_path)
