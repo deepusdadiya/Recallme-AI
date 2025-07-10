@@ -8,6 +8,10 @@ from PIL import Image
 import pytesseract
 import fitz
 import uuid
+import io
+from PIL import Image, ImageFilter
+import pytesseract
+import cv2
 
 
 def get_file_extension(filename: str) -> str:
@@ -30,8 +34,33 @@ def detect_file_type(extension: str):
 
 
 def extract_text_from_image(file_path: str) -> str:
-    image = Image.open(file_path)
-    return pytesseract.image_to_string(image)
+    # Load image using OpenCV
+    image = cv2.imread(file_path)
+
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply adaptive thresholding (better than fixed threshold)
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY, 31, 10
+    )
+
+    # Optional: Remove noise and smooth the image
+    denoised = cv2.medianBlur(thresh, 3)
+
+    # Save preprocessed image temporarily for OCR
+    is_success, im_buf_arr = cv2.imencode(".png", denoised)
+    img_bytes = im_buf_arr.tobytes()
+    image_for_ocr = Image.open(io.BytesIO(img_bytes))
+    image_for_ocr = image_for_ocr.filter(ImageFilter.SHARPEN)
+
+
+    # Run OCR
+    custom_config = r'--oem 3 --psm 6'  # LSTM engine, assume block of text
+    text = pytesseract.image_to_string(image_for_ocr, config=custom_config, lang='eng+hin')
+
+    return text.strip()
 
 
 def extract_text_from_audio(file_path: str) -> str:
@@ -62,11 +91,29 @@ def extract_text_from_video(file_path: str) -> str:
 
 
 def extract_text_from_pdf(file_path: str) -> str:
-    text = ""
+    extracted_text = ""
+
     with fitz.open(file_path) as doc:
-        for page in doc:
-            text += page.get_text()
-    return text
+        for page_number in range(len(doc)):
+            page = doc[page_number]
+            text = page.get_text().strip()
+
+            # If no text found, fallback to OCR
+            if not text:
+                print(f"Page {page_number + 1} had no text. Using OCR.")
+                pix = page.get_pixmap(dpi=300)
+                img_data = pix.tobytes("png")
+
+                # Convert to PIL image and run Tesseract
+                image = Image.open(io.BytesIO(img_data))
+                ocr_text = pytesseract.image_to_string(image, lang="eng")
+                extracted_text += ocr_text + "\n"
+                print("extracted text from pdf", extracted_text)
+            else:
+                extracted_text += text + "\n"
+                print("extracted text from pdf", extracted_text)
+    print("Total characters extracted from PDF:", len(extracted_text))
+    return extracted_text.strip()
 
 
 def extract_text_from_txt(file_path: str) -> str:
