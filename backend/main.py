@@ -4,7 +4,7 @@ from services.memory_query.router import router as query_router
 from services.file_ingest.router import router as file_router
 from services.auth.router import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
 app = FastAPI()
 
 app.add_middleware(
@@ -19,3 +19,12 @@ app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(file_router, prefix="/api/file", tags=["File Upload"])
 app.include_router(memory_router, prefix="/api/memory", tags=["Memory Upload"])
 app.include_router(query_router, prefix="/api/memory", tags=["QnA"])
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        server_header=False,)
