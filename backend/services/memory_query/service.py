@@ -28,9 +28,10 @@ Start by determining the user's intent:
 
 2. **Information Search Request**  
    If the query is about retrieving specific information (e.g., “When is my next trip?”, “What did I say about LLM?”), search the memory content and answer directly and precisely. Do not list all matching memories — only respond with the relevant fact or answer derived from context.  
-   If a memory contains a `created_at` date and the user asks **"when"**, return an answer like:  
+   If a memory contains a `created_at` date and the user query includes "when", always treat it as an information search, Respond in the format like this:
    - “You explored LLM on 29 May 2025.”  
    Keep it short and relevant.
+   Do not return a list of memories.
 
 Guidelines:
 - Use only contextually relevant memories.
@@ -83,7 +84,7 @@ def answer_query(db: Session, query: str, user_id: str, source_type: str = None,
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Here are your relevant memories:\n{full_memory_list}\n\nAnd here is detailed context:\n{memory_context}\n\nQuestion: {query}"}
+        {"role": "user", "content": f"Please answer this question directly based on memory content and upload timestamps. Only answer the question, don't list unrelated memory summaries.\n\nQuestion: {query}\n\nContext:\n{memory_context}"}
     ]
 
     completion = client.chat.completions.create(
