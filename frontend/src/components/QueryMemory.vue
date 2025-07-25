@@ -1,6 +1,14 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black px-4">
     <div class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-2xl shadow-lg p-8 text-white">
+      <button
+        @click="$router.back()"
+        class="text-sm mb-4 text-pink-400 hover:text-pink-300 flex items-center"
+      >
+        ← Back
+      </button>
+
+      <h2 class="text-2xl font-bold text-white text-center mb-6">🧠 Upload a Memory</h2>
       <h2 class="text-2xl font-bold mb-6 text-center">Ask me about your past Memories</h2>
 
       <form @submit.prevent="submitQuery" class="space-y-4">
