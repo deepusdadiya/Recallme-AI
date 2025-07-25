@@ -1,6 +1,13 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black px-4">
     <div class="w-full max-w-md bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg">
+      <button
+        @click="$router.back()"
+        class="text-sm mb-4 text-pink-400 hover:text-pink-300 flex items-center"
+      >
+        ← Back
+      </button>
+      
       <h2 class="text-2xl font-bold text-white text-center mb-6">🧠 Upload a Memory</h2>
 
       <input
